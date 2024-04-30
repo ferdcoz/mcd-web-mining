@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor de Noticias - YPFD</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            padding-top: 20px;
+        }
+        .container {
+            max-width: 600px;
+        }
+        .header {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 30px;
+        }
+        .news-card {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s ease;
+            margin-bottom: 20px;
+        }
+        .news-card:hover {
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        }
+        .news-header {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .news-source {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #6c757d;
+        }
+        .news-label {
+            font-style: italic;
+            font-size: 18px;
+        }
+        .positive {
+            color: #fff;
+            background-color: #28a745;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        .positive::after {
+            content: url('/static/positive.png');
+            margin-left: 5px;
+            width: 12px;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .negative {
+            color: #fff;
+            background-color: #dc3545;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="header">Análisis de Noticias - YPFD</h1>
+        <div id="news-container"></div>
+    </div>
+
+    <script>
+        function getNews() {
+            fetch('/get_news')
+            .then(response => response.json())
+            .then(data => {
+                const newsContainer = document.getElementById('news-container');
+                const newsCard = document.createElement('div');
+                newsCard.classList.add('news-card');
+                
+                const newsHeader = document.createElement('div');
+                newsHeader.classList.add('news-header');
+                newsHeader.innerHTML = `<strong>${data.header}</strong>`;
+                
+                const newsSource = document.createElement('div');
+                newsSource.classList.add('news-source');
+                newsSource.innerHTML = `Source: ${data.source}`;
+                
+                const newsLabel = document.createElement('div');
+                newsLabel.classList.add('news-label');
+                newsLabel.innerHTML = data.label === 'positive' ? '<span class="positive">Positive</span>' : '<span class="negative">Negative</span>';
+                
+                newsCard.appendChild(newsHeader);
+                newsCard.appendChild(newsSource);
+                newsCard.appendChild(newsLabel);
+                
+                // Add the new card at the beginning of the container
+                newsContainer.insertBefore(newsCard, newsContainer.firstChild);
+            })
+            .catch(error => console.error('Error fetching news:', error));
+        }
+
+        // Fetch news every 5 seconds
+        setInterval(getNews, 5000);
+
+        // Initial fetch
+        getNews();
+    </script>
+</body>
+</html>

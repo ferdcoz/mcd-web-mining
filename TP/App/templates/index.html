@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor de Noticias - YPFD</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            /*background-color: #f8f9fa;*/
+            padding-top: 20px;
+            background-image: url('/static/background.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        .container {
+            max-width: 600px;
+        }
+        .header {
+            color: #fff;
+            text-align: center;
+            font-size: 32px;
+            margin-bottom: 30px;
+        }
+        .news-card {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s ease;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .news-card:hover {
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        }
+        .news-header {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .news-source {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #6c757d;
+        }
+        .news-date {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #6c757d;
+        }
+        .news-label {
+            font-style: italic;
+            font-size: 18px;
+        }
+        .positive {
+            color: #fff;
+            background-color: #28a745;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        .positive::after {
+            content: url('/static/positive.png');
+            margin-left: 5px;
+            width: 20px; /* Increased size */
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+        }
+        .negative {
+            color: #fff;
+            background-color: #6c757d;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="header">Análisis de Noticias - YPFD</h1>
+        <div id="news-container"></div>
+    </div>
+
+    <script>
+        function getNews() {
+            fetch('/get_news')
+            .then(response => response.json())
+            .then(data => {
+                const newsContainer = document.getElementById('news-container');
+                const newsCard = document.createElement('div');
+                newsCard.classList.add('news-card');
+                
+                const newsHeader = document.createElement('div');
+                newsHeader.classList.add('news-header');
+                newsHeader.innerHTML = `<strong>${data.header}</strong>`;
+                
+                const newsSource = document.createElement('div');
+                newsSource.classList.add('news-source');
+                newsSource.innerHTML = `Fuente: ${data.source}`;
+
+                //const newsDate = document.createElement('div');
+                //newsDate.classList.add('news-date');
+                //newsDate.innerHTML = `Fecha: ${data.date}`;
+
+                const newsDate = document.createElement('div');
+                newsDate.classList.add('news-date');
+                const fecha = new Date(data.date);
+                const fechaFormateada = fecha.toLocaleDateString('es-ES');
+                newsDate.innerHTML = `Fecha: ${fechaFormateada}`;
+
+                
+                const newsLabel = document.createElement('div');
+                newsLabel.classList.add('news-label');
+                newsLabel.innerHTML = data.label === 'Compra' ? '<span class="positive">Compra</span>' : '<span class="negative">Neutro</span>';
+                
+                newsCard.appendChild(newsHeader);
+                newsCard.appendChild(newsSource);
+                newsCard.appendChild(newsDate);
+                newsCard.appendChild(newsLabel);
+                
+                /*
+                if (data.label === 'Compra') {
+                    const positiveImage = document.createElement('img');
+                    positiveImage.src = '/static/masla1.png';
+                    positiveImage.width = '100'; 
+                    positiveImage.style.position = 'absolute';
+                    positiveImage.style.bottom = '10px';
+                    positiveImage.style.right = '20px';
+                    newsCard.appendChild(positiveImage);
+                }
+                */
+                
+
+                // Add the new card at the beginning of the container
+                newsContainer.insertBefore(newsCard, newsContainer.firstChild);
+            })
+            .catch(error => console.error('Error fetching news:', error));
+        }
+
+        // Fetch news every 5 seconds
+        setInterval(getNews, 5000);
+
+        // Initial fetch
+        getNews();
+    </script>
+</body>
+</html>
